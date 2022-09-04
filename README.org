@@ -9,22 +9,33 @@ It is a tree-walking interpreter, and as such not suited for
 performance-critical environments. The syntax and implementation are
 as terse as possible.
 
-#+begin_example
+#+begin_src shell
+wc -l src/main.rs
+#+end_src
+
+#+RESULTS:
+: 110 src/main.rs
+
+#+begin_src text
 SCM1 --- a no-fluff tree-walking toy scheme
 
-()             empty list, nil
+()             list
+#t,#f          bool
 foo            symbol
 "hello world"  string
 1              int
-
-m              message
-!              not
-=              equal
+3.14           float
 -              negate
-*              multiply
-d              define
+*             multiply
+/              divide
+=              equal
+!              not
+>              greater
+<              less
+m              message
+:              define
 g              get
 s              set
 e              eval
 l              lambda
-#+end_example
+#+end_src
