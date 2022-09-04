@@ -9,12 +9,14 @@ It is a tree-walking interpreter, and as such not suited for
 performance-critical environments. The syntax and implementation are
 as terse as possible.
 
-#+begin_src shell :results table
+#+begin_src shell :results code
 wc -l src/main.rs
 #+end_src
 
 #+RESULTS:
-| 110 src/main.rs |
+#+begin_src shell
+     110 src/main.rs
+#+end_src
 
 #+begin_src text
 SCM1 --- a no-fluff tree-walking toy scheme
