@@ -1,0 +1,30 @@
+#+TITLE: scm1
+#+AUTHOR: ellis
+#+DESCRIPTION: a no-fluff tree-walking toy scheme
+
+This crate implements an interpreter for a scheme-like language using
+only the Rust std library.
+
+It is a tree-walking interpreter, and as such not suited for
+performance-critical environments. The syntax and implementation are
+as terse as possible.
+
+#+begin_example
+SCM1 --- a no-fluff tree-walking toy scheme
+
+()             empty list, nil
+foo            symbol
+"hello world"  string
+1              int
+
+m              message
+!              not
+=              equal
+-              negate
+*              multiply
+d              define
+g              get
+s              set
+e              eval
+l              lambda
+#+end_example
