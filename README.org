@@ -17,9 +17,8 @@ SCM1 --- a no-fluff tree-walking toy scheme
 ()             list
 #t,#f          bool
 foo            symbol
-"foo"          string
-1              int
-3.14           float
+"foo"          str
+3.14           num
 
 m              message
 f              lambda
