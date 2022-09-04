@@ -1,19 +1,14 @@
 //! scm1 --- a no-fluff tree-walking toy scheme
 #![feature(never_type)]
-use {
-  String as S, Vec as V,
-  std::{
-    io::stdin, error::Error, fmt::{Display, Debug, Result as FR, Formatter as FF},
-    option::Option as O,
-    boxed::Box as B,
-    collections::HashMap as M}};
-
+use {String as S, Vec as V, Box as B,
+     std::{option::Option as O, collections::HashMap as M, io::stdin, error::Error,
+	   fmt::{Display, Debug, Result as FR, Formatter as FF}}};
 #[derive(Debug)] struct Er(S);
 impl Error for Er {}
 impl Er {fn n(i:&str) -> Er {Er(i.to_string())}}
 impl Display for Er {fn fmt(&self, f: &mut FF<'_>) -> FR {f.write_str(&self.0)}}
 type R<X> = Result<X,Er>;
-#[derive(Clone)] enum A {A(S),B(bool),N(f64),S(S),F(fn(&[A])->R<A>),L(Vec<A>)}
+#[derive(Clone)] enum A {A(S),B(bool),N(f64),S(S),F(fn(&[A])->R<A>),L(V<A>)}
 impl PartialEq for A {
   fn eq(&self, rhs:&A) -> bool {
     match &self {
@@ -25,17 +20,14 @@ impl PartialEq for A {
 	_ => false}, _ => false,}}} // TODO
 impl Debug for A { fn fmt(&self, f: &mut FF<'_>) -> FR { use crate::A::*; match &self {
   A(_)|B(_)|N(_)|S(_)|L(_) => {f.write_str(&format!("{:?}",self))},
-  F(_) => {f.write_str("#'fn")}
-}}}
+  F(_) => {f.write_str("#'fn")}}}}
 impl Display for A { fn fmt(&self, f: &mut FF<'_>) -> FR {
   let r = match self {
     A::A(x) => x.clone(),
-    A::B(x) => x.to_string(),
-    A::S(x) => x.to_string(),
-    A::N(x) => x.to_string(),
-    A::L(x) => { let xs: V<S> = x.iter().map(|x| x.to_string()).collect();
-		 format!("({})", xs.join(","))},
-    A::F(_) => "#'fn".to_string()};
+    A::B(x) => x.to_string(),A::S(x) => x.to_string(),A::N(x) => x.to_string(),
+    A::F(_) => "#'fn".to_string(),
+    A::L(x) => {let xs: V<S> = x.iter().map(|x| x.to_string()).collect();
+		format!("({})", xs.join(","))}};
   write!(f,"{}",r)}}
 macro_rules! af {($a:ident,$f:expr)=>{A::F(|$a:&[A]|->R<A>{$f})}}
 type P = V<A>;
@@ -53,28 +45,20 @@ impl E {
     ].map(|(x,y)| {self.env.insert(x.to_string(),y)});}
   fn get(&self,k:&str) -> O<&A> {self.env.get(k)}
   fn set(&mut self,k:&str,v:A) -> O<A> {self.env.insert(k.to_string(),v)}}
-fn tok(i:S) -> V<S> {
-  i.replace("(", " ( ")
-    .replace(")", " ) ")
-    .split_whitespace()
-    .map(|x| x.to_string())
-    .collect()}
-fn parseln(ln:&[A]) -> R<Vec<f64>> {ln.iter().map(|x| parsen(x)).collect()}
+fn tok(i:S) -> V<S> {i.replace("(", " ( ").replace(")", " ) ").split_whitespace().map(|x| x.to_string()).collect()}
+fn parseln(ln:&[A]) -> R<V<f64>> {ln.iter().map(|x| parsen(x)).collect()}
 fn parsen(n:&A) -> R<f64> {match n {A::N(n) => Ok(*n), _ => Err(Er::n("expected a number"))}}
 fn parse<'a>(i:&'a[S]) -> R<(A,&'a[S])> {
-  let (car, cdr) = i.split_first()
-    .ok_or(Er::n("could not get token"))?;
+  let (car, cdr) = i.split_first().ok_or(Er::n("could not get token"))?;
   match &car[..] {
     "(" => seq(cdr),
     ")" => Err(Er::n("unexpected `)`")),
-    _ => Ok((atom(car), cdr))
-  }
-}
+    _ => Ok((atom(car), cdr))}}
 fn seq<'a>(i:&'a [S]) -> R<(A,&'a [S])> {
   let mut res:P = vec![]; let mut xs = i;
   loop {let (car, cdr) = xs.split_first().ok_or(Er::n("missing closing `)`"))?;
-    if car == ")" {return Ok((A::L(res), cdr))}
-    let (nx,ni) = parse(&xs)?;
+	if car == ")" {return Ok((A::L(res), cdr))}
+	let (nx,ni) = parse(&xs)?;
 	res.push(nx); xs = ni;}}
 fn atom(i:&str) -> A {match i.parse().ok() {Some(n) => A::N(n), None => A::A(i.to_string().clone())}}
 fn eval(p:&A,e:&mut E) -> R<A> {
@@ -84,25 +68,16 @@ fn eval(p:&A,e:&mut E) -> R<A> {
     A::L(x) => { let far = x.first().ok_or(Er::n("expected non-empty list"))?;
 		 let fdr = &x[1..];
 		 let fx = eval(far,e)?;
-		 match fx {
-		   A::F(f) => {
-		     let xdr = fdr.iter().map(|x| eval(x,e)).collect::<R<V<A>>>();
-		     f(&xdr?)
-		   },
-		   _ => Err(Er::n("first form must be a function"))}},
+		 match fx {A::F(f) => { let xdr = fdr.iter().map(|x| eval(x,e)).collect::<R<V<A>>>();
+					f(&xdr?)},
+			   _ => Err(Er::n("first form must be a function"))}},
     _ => Err(Er::n("unexpected form"))}}
 fn rl()->S { let mut s = S::new(); stdin().read_line(&mut s).expect("failed to read line"); s}
 fn repl(e:&mut E) -> R<!> { loop {
-  let i = rl();
-  let (r,_) = parse(&tok(i))?;
+  let i = rl(); let (r,_) = parse(&tok(i))?;
   match eval(&r, e) {
     Ok(r) => println!("=> {}", r),
-    Err(e) => match e { Er(e) => eprintln!("{}", e) }
-  }
-}}
+    Err(e) => match e { Er(e) => eprintln!("{}", e) }}}}
 fn main() -> R<!> {
   println!("SCM1 --- a no-fluff tree-walking toy scheme");
-  let mut e = E::new(None);
-  e.init();
-  repl(&mut e)
-}
+  let mut e = E::new(None::<Box<E>>); e.init(); repl(&mut e)}
