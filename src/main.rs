@@ -2,23 +2,19 @@
 use {String as S, Vec as V,
      std::{option::Option as O, collections::HashMap as M, error::Error, rc::Rc,
 	   io::{stdin,stdout,Write},fmt::{Display, Debug, Result as FR, Formatter as FF}}};
-#[derive(Debug)] struct Er(S);
-impl Error for Er {}
+#[derive(Debug)] struct Er(S); type R<X> = Result<X,Er>;
 impl Er {fn n(i:&str) -> Er {Er(i.to_string())}}
+impl Error for Er {}
 impl Display for Er {fn fmt(&self, f: &mut FF<'_>) -> FR {f.write_str(&self.0)}}
-type R<X> = Result<X,Er>;
 macro_rules! er {($s:expr)=>{Er::n($s)}} macro_rules! err {($s:expr)=>{Err(er!($s))}}
 #[derive(Clone)] enum A {A(S),B(bool),N(f64),S(S),F(fn(&[A])->R<A>),G(G),L(V<A>)}
 #[derive(Clone)] struct G{args:Rc<A>,body:Rc<A>}
 impl G { fn n(args:Rc<A>,body:Rc<A>)->G {G{args,body}}}
-impl PartialEq for A {
-  fn eq(&self, rhs:&A) -> bool {
-    match &self {
-      A::F(_) => false,
-      A::G(_) => false,
-      A::L(x) => match &rhs {
-	A::L(y) => { for (idx,yx) in y.iter().enumerate() { 
-	  match x[idx].eq(yx) {true => continue, false => return false}} true},_ => false} _ => false,}}} // TODO
+impl PartialEq for A {fn eq(&self, rhs:&A) -> bool {match &self {
+  A::F(_)|A::G(_) => false,
+  A::L(x) => match &rhs {
+    A::L(y) => { for (idx,yx) in y.iter().enumerate() { 
+      match x[idx].eq(yx) {true => continue, false => return false}} true},_ => false} _ => false,}}} // TODO
 impl Debug for A { fn fmt(&self, f: &mut FF<'_>) -> FR { use crate::A::*; match &self {
   A(_)|B(_)|N(_)|S(_)|L(_) => {f.write_str(&format!("{:?}",self))},F(_)|G(_) => {f.write_str("#'function")}}}}
 impl Display for A { fn fmt(&self, f: &mut FF<'_>) -> FR {
@@ -57,19 +53,15 @@ fn tok(i:S) -> V<S> {i.replace("(", " ( ").replace(")", " ) ").split_whitespace(
 fn parseln(i:&[A]) -> R<V<f64>> {i.iter().map(|x| parsen(x)).collect()}
 fn parsels(i:Rc<A>) -> R<V<S>> {
   let ls = match i.as_ref() {A::L(x) => Ok(x.clone()),_ => err!("expected args form to be a list")}?;
-  ls.iter().map(|x| match x {
-    A::A(l) => Ok(l.clone()),
-    _ => err!("expected symbols in arg list")}).collect()}
+  ls.iter().map(|x| match x {A::A(l) => Ok(l.clone()),_ => err!("expected symbols in arg list")}).collect()}
 fn parsen(n:&A) -> R<f64> {match n {A::N(n) => Ok(*n), _ => err!("expected number")}}
 //fn parses(s:&A) -> R<S> {match s {A::S(s) => Ok(s.clone()), _ => err!("expected string")}}
 fn parse<'a>(i:&'a[S]) -> R<(A,&'a[S])> {
   let (car, cdr) = i.split_first().ok_or(Er::n("could not get token"))?;
   match &car[..] {"(" => seq(cdr),")" => err!("unexpected `)`"),_ => Ok((atom(car), cdr))}}
-fn seq<'a>(i:&'a [S]) -> R<(A,&'a [S])> {
-  let mut res = vec![]; let mut xs = i;
+fn seq<'a>(i:&'a [S]) -> R<(A,&'a [S])> {let mut res = vec![]; let mut xs = i;
   loop {let (car, cdr) = xs.split_first().ok_or(Er::n("missing closing `)`"))?;
-	if car == ")" {return Ok((A::L(res), cdr))}
-	let (nx,ni) = parse(&xs)?;res.push(nx); xs = ni;}}
+	if car == ")" {return Ok((A::L(res), cdr))} let (nx,ni) = parse(&xs)?;res.push(nx); xs = ni;}}
 fn atom(i:&str) -> A {match i.parse().ok() {
   Some(n) => A::N(n),
   None => {if i.starts_with('\"') {A::S(i.to_string())} else {A::A(i.to_string().clone())}}}}
@@ -77,28 +69,18 @@ fn eval(p:&A,e:&mut E) -> R<A> {match p {
   A::A(x) => e.get(&x).ok_or(Er::n(&format!("unexpected symbol `{}`", x))).map(|x| x.clone()),
   A::B(_)|A::N(_) => Ok(p.clone()),
   A::L(x) => { let (car,cdr) = (x.first().ok_or(Er::n("expected non-empty list"))?, &x[1..]);
-	       match evala(car,cdr,e) {
-		 Some(r) => r,
+	       match evala(car,cdr,e) {Some(r) => r,
 		 None => {let fx = eval(car,e)?;
 			  match fx {
-			    A::F(f) => {
-			      let rx = cdr.iter().map(|x| eval(x,e)).collect::<R<V<A>>>();
-			      f(&rx?)},
-			    A::G(g) => {
-			      let fe = &mut fne(g.args,cdr,e)?;
-			      eval(&g.body,fe)},
-			    _ => err!("first form must be a function")}}}},
-  _ => err!("unexpected form")}}
-fn evala(car:&A,cdr:&[A],e:&mut E) -> O<R<A>> {match car {
-  A::A(x) => match x.as_ref() {
-    "?" => Some(eif(cdr,e)),":" => Some(ede(cdr,e)), "f" => Some(efn(cdr)),
-    _ => None}, _ => None}}
+			    A::F(f) => {let rx = cdr.iter().map(|x| eval(x,e)).collect::<R<V<A>>>();f(&rx?)},
+			    A::G(g) => {let fe = &mut fne(g.args,cdr,e)?;eval(&g.body,fe)},
+			    _ => err!("first form must be a function")}}}},_ => err!("unexpected form")}}
+fn evala(car:&A,cdr:&[A],e:&mut E) -> O<R<A>> {match car {A::A(x) => match x.as_ref() {
+  "?" => Some(eif(cdr,e)),":" => Some(ede(cdr,e)), "f" => Some(efn(cdr)),_ => None}, _ => None}}
 fn ea(i:&[A],e:&mut E) -> R<V<A>> { i.iter().map(|x| eval(x,e)).collect() }
-fn fne<'e>(a:Rc<A>,i:&[A],o:&'e mut E) -> R<E<'e>> {
-  let a = parsels(a)?;
+fn fne<'e>(a:Rc<A>,i:&[A],o:&'e mut E) -> R<E<'e>> {let a = parsels(a)?;
   if a.len() != i.len() { return err!(&format!("expected {} args got {}", a.len(), i.len())) }
-  let r = ea(i,o)?;
-  let mut m:M<S,A> = M::new();
+  let r = ea(i,o)?;let mut m:M<S,A> = M::new();
   for (k,v) in a.iter().zip(r.iter()) { m.insert(k.clone(),v.clone()); }
   Ok(E{env:m,out:Some(o)})}
 fn efn(i:&[A])->R<A> {
