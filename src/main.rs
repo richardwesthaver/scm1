@@ -38,13 +38,15 @@ impl E {
   fn get(&self,k:&str) -> O<&A> {self.env.get(k)}
   fn set(&mut self,k:&str,v:A) -> O<A> {self.env.insert(k.to_string(),v)}
   fn init(&mut self) -> &mut E {
-    [('m', af!(x,Ok(A::L(x.to_vec())))),
-     ('+',af!(x,{let r = parseln(x)?.iter().fold(0.0, |r,a| r+a); Ok(A::N(r))})),
-     ('-',af!(x,{let r = parseln(x)?.iter().fold(0.0, |r,a| r-a); Ok(A::N(r))})),
-     ('*',af!(x,{let r = parseln(x)?.iter().fold(1.0, |r,a| r*a); Ok(A::N(r))})),
-     ('/',af!(x,{let r = parseln(x)?.iter().fold(1.0, |r,a| r/a); Ok(A::N(r))})),
-     ('!',A::F(ab!(|a,b|a!=b))),('=',A::F(ab!(|a,b|a==b))),('>',A::F(ab!(|a,b|a>b))),
-     ('<',A::F(ab!(|a,b|a<b)))].map(|(x,y)| {self.env.insert(x.to_string(),y)});self}}
+    [//('m', af!(x,Ok(A::L(x.to_vec())))), // add to builtins
+      ('+',af!(x,Ok(A::N(parseln(x)?.iter().fold(0.0, |r,a| r+a))))),
+      ('-',af!(x,Ok(A::N(parseln(x)?.iter().fold(0.0, |r,a| r-a))))),
+      ('%',af!(x,Ok(A::N(parseln(x)?.into_iter().reduce(|r,a| r%a).unwrap())))),
+      ('/',af!(x,Ok(A::N(parseln(x)?.into_iter().reduce(|r,a| r/a).unwrap())))),
+      ('^',af!(x,Ok(A::N(parseln(x)?.into_iter().reduce(|r,a| r.powf(a)).unwrap())))),
+      ('*',af!(x,{let r = parseln(x)?.iter().product(); Ok(A::N(r))})),
+      ('!',A::F(ab!(|a,b|a!=b))),('=',A::F(ab!(|a,b|a==b))),('>',A::F(ab!(|a,b|a>b))),
+      ('<',A::F(ab!(|a,b|a<b)))].map(|(x,y)| {self.env.insert(x.to_string(),y)});self}}
 fn tok(i:S) -> V<S> {i.replace("(", " ( ").replace(")", " ) ").split_whitespace().map(|x| x.to_string()).collect()}
 fn parseln(ln:&[A]) -> R<V<f64>> {ln.iter().map(|x| parsen(x)).collect()}
 fn parsen(n:&A) -> R<f64> {match n {A::N(n) => Ok(*n), _ => er!("expected number")}}

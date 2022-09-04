@@ -13,24 +13,31 @@ src_sh{wc -l src/main.rs} {{{results(=96 src/main.rs=)}}}
 
 #+begin_src text
 SCM1 --- a no-fluff tree-walking toy scheme
-
+# types
 ()             list
 #t,#f          bool
 foo            symbol
-"hello world"  string
+"foo"          string
 1              int
 3.14           float
--              negate
-*             multiply
-/              divide
+
+m              message
+f              lambda
+:              def
+?              if
+.              eval
+@              get
+~              set
+
 =              equal
 !              not
 >              greater
 <              less
-m              message
-:              define
-g              get
-s              set
-e              eval
-l              lambda
+
++              add
+-              negate
+%              mod
+/              divide
+^              pow
+*              multiply
 #+end_src
