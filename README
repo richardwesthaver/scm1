@@ -1,0 +1,5 @@
+SCM1 --- src/main.rs:100 - A no-fluff tree-walking toy scheme interpreter
+  $ cargo install --path .
+  $ scm1 -h
+  $ scm1 src/t.scm
+  $ scm1 src/0.scm -i

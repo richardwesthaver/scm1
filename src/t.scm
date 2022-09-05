@@ -1,7 +1,7 @@
 ;;; t.scm --- scm1 test suite
+(: t (f (a r) (? r (ok a) (er a))))
 (: ok (f (a) (m a "success!")))
 (: er (f (a) (m a "failed!")))
-(: t (f (a r) (? r (ok a))))
 (t "eq" (= 0 0))
 (t "no" (! 1 0))
 (t "gt" (> 1 -1))
