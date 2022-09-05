@@ -96,5 +96,4 @@ fn repl(e:&mut E) -> R<()> { loop {print!("|| ");stdout().flush().or(err!("faile
     match eval(&r, e) {Ok(r) => println!("  {}", r),Err(e) => eprintln!("{}", e)}} else {continue}}}
 fn main() -> R<()> {let mut a=args().skip(1); if let Some(p) = a.next() {
   match p.as_str() { "-h" => Ok(println!(include_str!("h"))), _ => {
-    let l = match a.next() {Some(i)=>i.eq("-i"),_=>false};ld(p,E::new(None).init(),l)}}} else {
-  println!("SCM1 --- a no-fluff tree-walking toy scheme");repl(E::new(None).init())}}
+    let l = match a.next() {Some(i)=>i.eq("-i"),_=>false};ld(p,E::new(None).init(),l)}}} else {repl(E::new(None).init())}}
