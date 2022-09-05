@@ -1,10 +1,5 @@
-SCM1 --- 99 src/main.rs - A no-fluff tree-walking toy scheme interpreter
+SCM1 --- 102 src/main.rs - A no-fluff tree-walking toy scheme interpreter
   $ cargo install --path .
   $ scm1 -h
   $ scm1 src/t.scm
   $ scm1 src/0.scm -i
-
-...
-
-  $ mkdir -p ../scm2 & cp -rf ./* ../scm2 & cd ../scm2
-  $ cargo fmt & wc -l src/main.rs # 482 src/main.rs

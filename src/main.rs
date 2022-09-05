@@ -62,10 +62,21 @@ fn eval(p:&A,e:&mut E) -> R<A> {match p {
 	_ => err!("first form must be a function")}}}},_ => err!("unexpected form")}}
 fn evala(car:&A,cdr:&[A],e:&mut E) -> O<R<A>> {match car {A::A(x) => match x.as_ref() {
   "?" => Some(eif(cdr,e)),":" => Some(ede(cdr,e)),"m" => {Some(em(cdr,e))},"f" => Some(efn(cdr)),
-  "."=>Some(ee(cdr,e)),"@"=>Some(eg(cdr,e)), _ => None}, _ => None}}
+  "."=>Some(ee(cdr,e)),"@"=>Some(eg(cdr,e)), "["=>Some(ecar(cdr,e)),"]"=>Some(ecdr(cdr,e)),
+  _ => None}, _ => None}}
 fn ea(i:&[A],e:&mut E) -> R<V<A>> { i.iter().map(|x| eval(x,e)).collect() }
 fn ee(i:&[A],e:&mut E) -> R<A> {let mut r = vec![]; for x in i.iter() {
   match x {A::S(s) => r.push(eval(&parse(&tok(s.to_string())).unwrap().0,e)?),_ => r.push(eval(x,e)?)}} Ok(A::L(r))}
+fn ecar(i:&[A],e:&mut E) -> R<A> {
+  match eval(&i[0],e) {
+    Ok(A::L(v)) => Ok(v[0].clone()),
+    Ok(x) => Ok(x),
+    Err(e) => Err(e)}}
+fn ecdr(i:&[A],e:&mut E) -> R<A> {
+  match eval(&i[0],e) {
+    Ok(A::L(v)) => Ok(A::L(v[1..].to_vec())),
+    Ok(x) => Ok(x),
+    Err(e) => Err(e)}}
 fn eg(i:&[A],e:&mut E) -> R<A> {let mut r = vec![];for x in i.iter() {
   r.push(e.get(&x.to_string()).ok_or(er!("undefined symbol"))?.clone());}Ok(A::L(r))}
 fn fne<'e>(a:Rc<A>,i:&[A],o:&'e mut E) -> R<E<'e>> {
