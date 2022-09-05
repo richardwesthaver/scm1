@@ -9,7 +9,7 @@ It is a tree-walking interpreter, and as such not suited for
 performance-critical environments. The syntax and implementation are
 as terse as possible.
 
-src_sh[:results raw]{wc -l src/main.rs}      107 src/main.rs
+src_sh[:results raw]{wc -l src/main.rs}      100 src/main.rs
 
 #+begin_src text
 SCM1 --- a no-fluff tree-walking toy scheme
@@ -24,19 +24,21 @@ m              message
 f              lambda
 :              def
 ?              if
-.              eval
-@              get
-~              set
+,              enlist
+$              tostr
+.              eval # todo
+@              get # todo
+~              set # todo
 
-=              equal
-!              not
->              greater
-<              less
+=              eq
+!              ne
+>              gt
+<              lt
 
 +              add
--              negate
-%              mod
-/              divide
+-              sub
+%              rem
+/              div
 ^              pow
 *              multiply
 #+end_src
