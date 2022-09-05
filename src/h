@@ -1,8 +1,9 @@
 SCM1 --- a no-fluff tree-walking toy scheme
-$scm1 0.scm [-i]
+$scm1 [FILE] [-i]
 
 type
-()             list
+nil,()         null #todo
+(1 2)          list
 #t,#f          boolean
 foo            symbol
 "foo"          string

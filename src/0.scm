@@ -1,4 +1,6 @@
 ;;; 0.scm --- scm1 core lib
+(: nil? (f (a) (= a ())))
+(: cons (f (a b) (, a b)))
 (: car (f (a) ([ a))) ; alias
 (: cdr (f (a) (] a))) ; alias
 (: cadr (f (a) ([ (] a))))

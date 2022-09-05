@@ -55,10 +55,13 @@ fn atom(i:&str) -> A {match i.parse().ok() {Some(n) => A::N(n),None =>{
 fn eval(p:&A,e:&mut E) -> R<A> {match p {
   A::A(x) => e.get(&x).ok_or(er!(&format!("unexpected symbol `{}`", x))).map(|x| x.clone()),
   A::B(_)|A::N(_)|A::S(_) => Ok(p.clone()),A::L(x) => {
-    let (car,cdr) = (x.first().ok_or(er!("expected non-empty list"))?, &x[1..]);match evala(car,cdr,e) {
-      Some(r) => r,None => {let fx = eval(car,e)?;match fx {
+    let ll = x.len();
+    let car = if ll == 0 {A::L(vec![])} else { x.get(0).map(|x| x.clone()).unwrap_or(A::L(vec![]))};
+    let cdr = if ll < 2 {vec![]} else if ll == 2 { vec![x[1].clone()] } else { x[1..ll].to_vec() };
+    match evala(&car,&cdr,e) {
+      Some(r) => r,None => {let fx = eval(&car,e)?;match fx {
 	A::F(f) => {let rx = cdr.iter().map(|x| eval(x,e)).collect::<R<V<A>>>();f(&rx?)},
-	A::G(g) => {let fe = &mut fne(g.args,cdr,e)?;eval(&g.body,fe)},
+	A::G(g) => {let fe = &mut fne(g.args,&cdr,e)?;eval(&g.body,fe)},
 	_ => err!("first form must be a function")}}}},_ => err!("unexpected form")}}
 fn evala(car:&A,cdr:&[A],e:&mut E) -> O<R<A>> {match car {A::A(x) => match x.as_ref() {
   "?" => Some(eif(cdr,e)),":" => Some(ede(cdr,e)),"m" => {Some(em(cdr,e))},"f" => Some(efn(cdr)),
