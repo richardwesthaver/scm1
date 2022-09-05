@@ -1,7 +1,8 @@
 //! scm1 --- a no-fluff tree-walking toy scheme
 use {String as S, Vec as V,
-     std::{option::Option as O, collections::HashMap as M, error::Error, rc::Rc,
-	   io::{stdin,stdout,Write},fmt::{Display, Debug, Result as FR, Formatter as FF}}};
+     std::{option::Option as O, collections::HashMap as M, error::Error, rc::Rc,path::Path,fs::{File as F},
+	   io::{BufReader,BufRead,stdin,stdout,Write},
+	   env::args,fmt::{Display, Debug, Result as FR, Formatter as FF}}};
 #[derive(Debug)] struct Er(S); type R<X> = Result<X,Er>;
 impl Er {fn n(i:&str) -> Er {Er(i.to_string())}} impl Error for Er {}
 impl Display for Er {fn fmt(&self, f: &mut FF<'_>) -> FR {f.write_str(&self.0)}}
@@ -93,8 +94,16 @@ fn ede(i:&[A],e:&mut E) -> R<A> {
   let ds = match d0 {A::A(x) => Ok(x.clone()), _ => err!("expected first form to be symbol")}?;
   let d1 = i.get(1).ok_or(er!("expected second form"))?;if i.len()>2 {return err!("def can only have two forms")}
   let dx = eval(d1,e)?;e.set(&ds,dx);Ok(d0.clone())}
+fn ld<P:AsRef<Path>>(p:P,e:&mut E,l:bool)-> R<()> {
+  let f = BufReader::new(F::open(p).or(err!("failed to open file"))?).lines();
+  for i in f {if let Ok(i) = i {if let Ok((r,_)) = parse(&tok(i)) {
+    match eval(&r,e) {Ok(r) => println!("{}", r),Err(e) => eprintln!("{}", e)}} else {continue}}}
+  if l { repl(e) } else {Ok(())}}
 fn rl()->S {let mut s = S::new(); stdin().read_line(&mut s).expect("failed to read line"); s}
 fn repl(e:&mut E) -> R<()> { loop {print!("|| ");stdout().flush().or(err!("failed to display prompt"))?;
   let i = rl(); if let Ok((r,_)) = parse(&tok(i)) {
     match eval(&r, e) {Ok(r) => println!("  {}", r),Err(e) => eprintln!("{}", e)}} else {continue}}}
-fn main() -> R<()> {println!("SCM1 --- a no-fluff tree-walking toy scheme");repl(E::new(None).init())}
+fn main() -> R<()> {let mut a=args().skip(1); if let Some(p) = a.next() {
+  match p.as_str() { "-h" => Ok(println!("help")), _ => {
+    let l = match a.next() {Some(i)=>i.eq("-i"),_=>false};ld(p,E::new(None).init(),l)}}} else {
+  println!("SCM1 --- a no-fluff tree-walking toy scheme");repl(E::new(None).init())}}
