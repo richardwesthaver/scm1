@@ -1,1 +1,10 @@
-- implement nil
+impl nil
+impl t (type)
+impl preds
+impl ~ (let)
+impl more cond fns
+impl vargs
+impl io types (ports)
+impl io procs (r/w)
+impl l (load)
+impl q (quit)
