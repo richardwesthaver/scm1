@@ -6,3 +6,5 @@ src/main.rs:106
   $ scm1 -h
   $ scm1 src/t.scm
   $ scm1 src/0.scm -i
+  $ || (m "hello" "world")
+  $   hello world
