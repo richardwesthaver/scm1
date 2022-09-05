@@ -9,7 +9,7 @@ It is a tree-walking interpreter, and as such not suited for
 performance-critical environments. The syntax and implementation are
 as terse as possible.
 
-src_sh[:results raw]{wc -l src/main.rs}      109 src/main.rs
+src_sh[:results raw]{wc -l src/main.rs}       97 src/main.rs
 
 #+begin_src text
 SCM1 --- a no-fluff tree-walking toy scheme
