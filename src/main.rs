@@ -13,7 +13,7 @@ impl PartialEq for A {fn eq(&self, rhs:&A) -> bool {match &self {
 impl Debug for A { fn fmt(&self, f: &mut FF<'_>) -> FR { use crate::A::*; match &self {
   A(_)|B(_)|N(_)|S(_)|L(_) => {f.write_str(&format!("{:?}",self))},F(_)|G(_) => {f.write_str("#fn")}}}}
 impl Display for A { fn fmt(&self, f: &mut FF<'_>) -> FR {write!(f,"{}",match self {
-  A::A(x) => x.clone(),A::S(x) => x.clone(),A::F(_)|A::G(_) => "#fn".to_string(),
+  A::A(x) => x.clone(),A::S(x) => x.trim_matches('"').to_string().clone(),A::F(_)|A::G(_) => "#fn".to_string(),
   A::B(x) => {let r = if *x {"#t"} else {"#f"}; r.to_string()},A::N(x) => x.to_string(),
   A::L(x) => {let xs: V<S> = x.iter().map(|x| x.to_string()).collect();format!("{}", xs.join(" "))}})}}
 macro_rules! af {($a:ident,$f:expr)=>{A::F(|$a:&[A]|->R<A>{$f})}}macro_rules! ab {($f:expr) => {{|i: &[A]| -> R<A> {
@@ -95,6 +95,6 @@ fn repl(e:&mut E) -> R<()> { loop {print!("|| ");stdout().flush().or(err!("faile
   let i = rl(); if let Ok((r,_)) = parse(&tok(i)) {
     match eval(&r, e) {Ok(r) => println!("  {}", r),Err(e) => eprintln!("{}", e)}} else {continue}}}
 fn main() -> R<()> {let mut a=args().skip(1); if let Some(p) = a.next() {
-  match p.as_str() { "-h" => Ok(println!("help")), _ => {
+  match p.as_str() { "-h" => Ok(println!(include_str!("h"))), _ => {
     let l = match a.next() {Some(i)=>i.eq("-i"),_=>false};ld(p,E::new(None).init(),l)}}} else {
   println!("SCM1 --- a no-fluff tree-walking toy scheme");repl(E::new(None).init())}}

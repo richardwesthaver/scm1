@@ -1,0 +1,29 @@
+SCM1 --- a no-fluff tree-walking toy scheme
+$scm1 0.scm [-i]
+
+type
+()             list
+#t,#f          boolean
+foo            symbol
+"foo"          string
+1,3.14 	       number
+
+function
+m              message
+f              lambda
+:              define
+?              if
+,              enlist
+$              strify
+.              eval
+@              get
+=              eq
+!              ne
+>              gt
+<              lt
++              add
+-              sub
+%              rem
+/              div
+^              pow
+*              multiply
