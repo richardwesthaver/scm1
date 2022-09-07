@@ -1,6 +1,5 @@
 fix str tokenization, (m "a b")
-impl nil
-impl t (type)
+fix (= #_ #_)
 impl preds
 impl ~ (let)
 impl more cond fns
