@@ -2,21 +2,21 @@ h:       help file
 0.scm:   core scm lib
 t.scm:   scm tests
 main.rs: program
-fmt:     2 space indent, terse
-imports: S:  String,
-         V:  Vec,
-	 O:  Option,
-	 M:  HashMap,
-	 F:  File,
-	 FR: fmt::Result,
-	 FF: fmt::Formatter
-defs:    Er: error,
-         R:  result,
-         A:  atom {A:sym,B:bool,N:num,S:str,F:fn,G:lambda,L:list}
-         G:  lambda,
-         E:  env,
-macros:  er, err, af, ab
-fn:      tok, parseln, parsels, parsen, parse
-         seq, atom, eval, evala, ea, ee
-         ecar, ecdr, eg, fne, efn, em, eif,
-         ede, ld, rl, repl, main
+  fmt:     2 space indent, terse
+  imports: S:  String,
+           V:  Vec,
+  	 O:  Option,
+  	 M:  HashMap,
+  	 F:  File,
+  	 FR: fmt::Result,
+  	 FF: fmt::Formatter
+  defs:    Er: error,
+           R:  result,
+           A:  atom {A:sym,B:bool,N:num,S:str,F:fn,G:lambda,L:list}
+           G:  lambda,
+           E:  env,
+  macros:  er, err, af, ab
+  fn:      tok, parseln, parsels, parsen, parse
+           seq, atom, eval, evala, ea, ee
+           ecar, ecdr, eg, fne, efn, em, eif,
+           ede, ld, rl, repl, main

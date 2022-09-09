@@ -2,10 +2,13 @@
 use {String as S, Vec as V,std::{
   option::Option as O, collections::HashMap as M, error::Error, rc::Rc,path::Path,fs::File as F,cmp::Ordering,
   io::{BufReader,BufRead,stdin,stdout,Write},env::args,fmt::{Display, Debug, Result as FR, Formatter as FF}}};
-#[derive(Debug, Clone)] struct Er(S); type R<X> = Result<X,Er>;
+#[derive(Debug, Clone)] struct Er(S);
+type R<X> = Result<X,Er>;
 impl Er {fn n(i:&str) -> Er {Er(i.to_string())}} impl Error for Er {}
 impl Display for Er {fn fmt(&self, f: &mut FF<'_>) -> FR {f.write_str(&self.0)}}
-macro_rules! er {($s:expr)=>{Er::n($s)}} macro_rules! err {($s:expr)=>{Err(er!($s))}}
+macro_rules! er {($s:expr)=>{Er::n($s)}}
+macro_rules! err {($s:expr)=>{Err(er!($s))}}
+
 #[derive(Clone)] enum A {A(S),B(bool),C(S),D(f64),E,F(fn(&[A])->R<A>),G(G),L(V<A>)}
 impl A {fn ty(&self) -> String {use crate::A::*;(match self {
   A(_)=>"#A",B(_)=>"#B",C(_)=>"#C",D(_)=>"#D",E=>"#_",F(_)=>"#F",G(_)=>"#G",
@@ -14,13 +17,13 @@ impl PartialOrd for A {fn partial_cmp(&self,o:&Self) -> O<Ordering> {
   use crate::A::*;match self {
     A(x) => match o {A(y) => Some(x.cmp(y)),_ => None},B(x) => match o {B(y) => Some(x.cmp(y)),_ => None},
     C(x) => match o {C(y) => Some(x.cmp(y)),_ => None},D(x) => match o {D(y) => Some(x.total_cmp(y)),_ => None},
-    E => Some(Ordering::Equal), F(_)|G(_) => None,L(x) => {let l1=x.len();match l1 {
+    E => None, F(_)|G(_) => None,L(x) => {let l1=x.len();match l1 {
       0 => None,1 => x[0].partial_cmp(o),
       _ => match o {L(y) => if y.len()==l1 {x.partial_cmp(&y)} else {None},_=>None}}}}}}
 impl PartialEq for A {fn eq(&self, o:&A) -> bool {match &self {
   A::A(x) => match o {A::A(y) => x.eq(y),_ => false},A::B(x) => match o {A::B(y) => x.eq(y),_ => false},
   A::C(x) => match o {A::C(y) => x.eq(y),_ => false},A::D(x) => match o {A::D(y) => x.eq(y),_ => false},
-  A::E => match o {A::E => self.eq(o),_ => false},A::F(_)|A::G(_) => false,A::L(x) => match &o {
+    A::E => match o {A::E => true,_ => false},A::F(_)|A::G(_) => false,A::L(x) => match &o {
     A::L(y) => { for (idx,yx) in y.iter().enumerate() { 
       match x[idx].eq(yx) {true => continue, false => return false}} true},_ => false}}}}
 impl Debug for A { fn fmt(&self, f: &mut FF<'_>) -> FR { use crate::A::*; match &self {
@@ -29,33 +32,38 @@ impl Display for A { fn fmt(&self, f: &mut FF<'_>) -> FR {write!(f,"{}",match se
   A::A(x) => x.clone(),A::C(x) => x.trim_matches('"').to_string().clone(),A::F(_)|A::G(_) => "#fn".to_string(),
   A::B(x) => {let r = if *x {"#t"} else {"#f"}; r.to_string()},A::D(x) => x.to_string(),A::E => "#_".to_string(),
   A::L(x) => {let xs: V<S> = x.iter().map(|x| x.to_string()).collect();format!("{}", xs.join(" "))}})}}
-macro_rules! af {($a:ident,$f:expr)=>{A::F(|$a:&[A]|->R<A>{$f})}} macro_rules! ab {($f:expr) => {{|i: &[A]| -> R<A> {
-  let (car,cdr) = (i.first().ok_or(er!("expected at least one number"))?, &i[1..]);
-  fn f(far:&A,fdr:&[A])-> bool {match fdr.first() {Some(x) => $f(far,x) && f(x,&fdr[1..]),None => true}}
-  Ok(A::B(f(car,cdr)))}}}}
-#[derive(Clone,PartialEq,PartialOrd)] struct G{args:Rc<A>,body:Rc<A>}
+macro_rules! af {($a:ident,$f:expr)=>{A::F(|$a:&[A]|->R<A>{$f})}}
+macro_rules! ab {($f:expr) => {{|i: &[A]| -> R<A> {
+    let (car,cdr) = (i.first().ok_or(er!("expected at least one arg"))?, &i[1..]);
+    fn f(far:&A,fdr:&[A])-> bool {if let Some(x) = fdr.first() {$f(far,x) && f(x,&fdr[1..])} else {true}}
+    Ok(A::B(f(car,cdr)))}}}}
+#[derive(Clone,PartialEq,PartialOrd)] struct G{args:Rc<A>,body:Rc<A>} // λ
 impl G { fn n(args:Rc<A>,body:Rc<A>)->G {G{args,body}}}
 #[derive(Default,Clone)] struct E<'e> {env:M<S,A>,out:O<&'e E<'e>>} impl<'e> E<'e> {
-  fn new(out:O<&'e E<'e>>) -> E<'e> {E{env:M::new(),out}}
+  fn n(out:O<&'e E<'e>>) -> E<'e> {E{env:M::new(),out}}
   fn get(&self,k:&str) -> O<&A> {
     match self.env.get(k) {Some(x) => Some(x),None => match &self.out { Some(o) => o.get(k),None=>None}}}
   fn set(&mut self,k:&str,v:A) -> O<A> {self.env.insert(k.to_string(),v)}
   fn init(&'e mut self) -> &'e mut E<'e> {
     [('$',af!(x,Ok(A::C(format!("\"{}\"", (x.into_iter().map(|x| x.to_string()).collect::<V<S>>().join(" "))))))),
      ('t',af!(x,Ok(A::C(x.iter().map(|x| x.ty()).collect::<V<S>>().join(" "))))),
-     ('!',A::F(ab!(|a,b|a!=b))),('=',A::F(ab!(|a,b|a==b))),
+     ('!',A::F(ab!(|a,b|a!=b))),('=',A::F(ab!(|a:&A,b|a==b))),
      ('>',A::F(ab!(|a,b|a>b))),('<',A::F(ab!(|a,b|a<b))),
      (',',af!(x,Ok(A::L(x.to_vec())))),
-     ('+',af!(x,Ok(A::D(parseln(x)?.iter().fold(0.0, |r,a| r+a))))),('-',af!(x,Ok(A::D(parseln(x)?.iter().fold(0.0, |r,a| r-a))))),
-     ('%',af!(x,Ok(A::D(parseln(x)?.into_iter().reduce(|r,a| r%a).unwrap())))),
-     ('/',af!(x,Ok(A::D(parseln(x)?.into_iter().reduce(|r,a| r/a).unwrap())))),
-     ('^',af!(x,Ok(A::D(parseln(x)?.into_iter().reduce(|r,a| r.powf(a)).unwrap())))),
+     ('+',af!(x,Ok(A::D(parseln(x)?.into_iter().reduce(|r,a|r+a).unwrap())))),
+     ('-',af!(x,Ok(A::D(parseln(x)?.into_iter().reduce(|r,a|r-a).unwrap())))),
+     ('%',af!(x,Ok(A::D(parseln(x)?.into_iter().reduce(|r,a|r%a).unwrap())))),
+     ('/',af!(x,Ok(A::D(parseln(x)?.into_iter().reduce(|r,a|r/a).unwrap())))),
+     ('^',af!(x,Ok(A::D(parseln(x)?.into_iter().reduce(|r,a|r.powf(a)).unwrap())))),
      ('*',af!(x,{let r = parseln(x)?.iter().product(); Ok(A::D(r))}))].map(|(x,y)| {self.env.insert(x.to_string(),y)});self}}
-fn tok(i:S) -> V<S> {let i = if let Some(n) = i.find(';') {&i[..n]} else {&i};if i.len() == 0 { return vec![] } else {
-  let mut r = vec![];if i.starts_with('"') {
-    let ms: V<&str> = i.splitn(2, '"').collect();if ms.len() == 0 { return r } else {r.push(format!("\"{}", ms[1]))}} //lol
-  let i = i.replace("(", " ( ").replace(")", " ) ");
-  let i:V<S> = i.split_whitespace().map(|x| x.to_string()).collect();r.extend_from_slice(&i);r}}
+fn tok(i:S) -> V<S> {
+  let i = if let Some(n) = i.find(';') {&i[..n]} else {&i};if i.len() == 0 { return vec![] } else {
+    let mut r = vec![]; let mut c = false; //in str
+    let i:S = i.chars().filter_map(
+      |s| match s {'"' => {c=!c; Some(s)},' ' => if c {Some(0x1a.into())} else {Some(s)}, _=>Some(s)}).collect();
+    let i:V<S> = i.replace("(", " ( ").replace(")", " ) ")
+	  .split_ascii_whitespace().map(|x| x.to_string().replace(0x1a as char, " ")).collect();
+    r.extend_from_slice(&i);r}}
 fn parseln(i:&[A]) -> R<V<f64>> {i.iter().map(|x| parsen(x)).collect()}
 fn parsels(i:Rc<A>) -> R<V<S>> {
   let ls = match i.as_ref() {A::L(x) => Ok(x.clone()),_ => err!("expected args form to be a list")}?;
@@ -69,7 +77,7 @@ fn seq<'a>(i:&'a [S]) -> R<(A,&'a [S])> {let mut res = vec![]; let mut xs = i;lo
     let (nx,ni) = parse(&xs)?;res.push(nx); xs = ni;}}}
 fn atom(i:&str) -> A { match i.parse().ok() {Some(n) => A::D(n), None => {
   if i.starts_with('"') {A::C(i.to_string().clone())} else {
-    match i {"#t" => {A::B(true)},"#f" => {A::B(false)},"()"|"nil"|"#_" => {A::E},i => A::A(i.to_string())}}}}}
+    match i {"#t" => {A::B(true)},"#f" => {A::B(false)},"()"|"nil"|"#_" => A::E,i => A::A(i.to_string())}}}}}
 fn eval(p:&A,e:&mut E) -> R<A> {match p {
   A::E => Ok(A::E),
   A::A(x) => e.get(&x).ok_or(er!(&format!("unexpected symbol `{}`", x))).map(|x| x.clone()),
@@ -103,7 +111,7 @@ fn fne<'e>(a:Rc<A>,i:&[A],o:&'e mut E) -> R<E<'e>> {
 fn efn(i:&[A])->R<A> {
   let (p,f) = (i.first().ok_or(er!("expected cond form"))?,i.get(1).ok_or(er!("expected second form"))?);
   if i.len() > 2 {return err!("lambda can only have 2 forms")} Ok(A::G(G::n(Rc::new(p.clone()),Rc::new(f.clone()))))}
-fn em(i:&[A],e:&mut E) -> R<A> {Ok(A::L(i.iter().map(|x| eval(x,e).unwrap_or(A::B(false))).collect()))}
+fn em(i:&[A],e:&mut E) -> R<A> {Ok(A::L(i.iter().map(|x| eval(x,e).unwrap_or(A::E)).collect()))}
 fn eif(i:&[A],e:&mut E) -> R<A> {
   let t = i.first().ok_or(er!("expected cond form"))?; let tx = eval(t,e)?;match tx {A::B(x) => {
     let ti = if x {1} else {2};let r = i.get(ti).ok_or(er!(&format!("expected form idx={}",ti)))?;
@@ -124,4 +132,4 @@ fn repl(e:&mut E) -> R<()> { loop {print!("|| ");stdout().flush().or(err!("faile
     match eval(&r, e) {Ok(r) => println!("  {}", r),Err(e) => eprintln!("{}", e)}} else {continue}}}
 fn main() -> R<()> {let mut a=args().skip(1); if let Some(p) = a.next() {
   match p.as_str() { "-h" => Ok(println!(include_str!("h"))), _ => {
-    let l = match a.next() {Some(i)=>i.eq("-i"),_=>false};ld(p,E::new(None).init(),l)}}} else {repl(E::new(None).init())}}
+    let l = match a.next() {Some(i)=>i.eq("-i"),_=>false};ld(p,E::n(None).init(),l)}}} else {repl(E::n(None).init())}}
