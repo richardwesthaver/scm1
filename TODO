@@ -7,4 +7,3 @@ add vargs
 add io types (ports)
 add io procs (r/w)
 add l (load)
-add q (quit)
