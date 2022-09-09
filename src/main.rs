@@ -52,7 +52,7 @@ impl G { fn n(args:Rc<A>,body:Rc<A>)->G {G{args,body}}}
   fn init(&'e mut self) -> &'e mut E<'e> {
     [('$',af!(x,Ok(A::C(format!("\"{}\"", (x.into_iter().map(|x| x.to_string()).collect::<V<S>>().join(" "))))))),
      ('t',af!(x,Ok(A::C(x.iter().map(|x| x.ty()).collect::<V<S>>().join(" "))))),
-     ('!',A::F(ab!(|a,b|a!=b))),('=',A::F(ab!(|a:&A,b|a==b))),
+     ('!',A::F(ab!(|a,b|a!=b))),('=',A::F(ab!(|a,b|a==b))),
      ('>',A::F(ab!(|a,b|a>b))),('<',A::F(ab!(|a,b|a<b))),
      (',',af!(x,Ok(A::L(x.to_vec())))),
      ('+',af!(x,Ok(A::D(parseln(x)?.into_iter().reduce(|r,a|r+a).unwrap())))),
