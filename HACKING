@@ -18,6 +18,6 @@ lib.rs:   api
           E:  env,
   macros: er, err, af, ab
   fn:     tok, parseln, parsels, parsen, parse
-          seq, atom, eval, evala, ea, ee
+          seq, atom, eval, evala, ea, ee, el,
           ecar, ecdr, eg, fne, efn, em, eif,
           ede, ld, rl, repl, main

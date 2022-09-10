@@ -1,10 +1,6 @@
-fix str tokenization, (m "a b")
-fix (= #_ #_)
-impl preds
+add public api
 impl ~ (let)
-impl more cond fns
 impl vargs
 impl io types (ports)
 impl io procs (r/w)
-impl l (load)
 impl q (quit)
