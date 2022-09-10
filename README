@@ -2,8 +2,8 @@ SCM1 --- A no-fluff tree-walking scheme-ish toy interpreter
 
   $ cargo install --path .
   $ scm1 -h
-  $ scm1 src/test.scm
-  $ scm1 src/std.scm -i
+  $ scm1 src/test.scm src/std.scm -i
+    ...
   $ || (: x (f (a b) (? (! a b) (m "hello world"))))
   $   x
   $ || (x #_ 1)

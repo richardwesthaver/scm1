@@ -1,5 +1,10 @@
 ;;; 0.scm --- scm1 core lib
-(: nil? (f (a) (= (t a) (t #_))))
+(: nil? (f (a) (= (t a) (t ()))))
+(: a? (f (a) (= (t A) (t a))))
+(: b? (f (a) (= (t B) (t a))))
+(: c? (f (a) (= (t C) (t a))))
+(: d? (f (a) (= (t D) (t a))))
+(: e? (f (a) (= (t E) (t a))))
 (: cons (f (a b) (, a b)))
 (: car (f (a) ([ a))) ; alias
 (: cdr (f (a) (] a))) ; alias
@@ -14,4 +19,4 @@
 (: cdadr (f (a) (] ([ (] a)))))
 (: caddr (f (a) ([ (] (] a)))))
 (: caaar (f (a) ([ ([ ([ a)))))
-(: cdddr (f (a) (] (] (] a)))))	    
+(: cdddr (f (a) (] (] (] a)))))

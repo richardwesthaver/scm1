@@ -1,14 +1,17 @@
 SCM1 --- a no-fluff tree-walking toy scheme
-$scm1 [FILE] [-i]
+$scm1 [FILE] [-hi]
 fn             ty
   m      msg     #_     nil
-  f      fn2     ()     list
+  f      lambda  ()     list
   t      ty      #t,#f  bool
-  :      def     foo    sym
-  ?      if      "foo"  str
-  [      car     3.14   num
+  l      load    foo    sym
+  :      def     "foo"  str
+  ?      if      3.14   num
+  &      and
+  |      or
+  [      car
   ]      cdr
-  ,      cons
+  ,      list
   $      str
   .      eval
   @      get

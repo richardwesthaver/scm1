@@ -1,9 +1,10 @@
-def public api
-add proc-macros for fluff trimming
-add preds
-add ~ (let)
-add more cond fns
-add vargs
-add io types (ports)
-add io procs (r/w)
-add l (load)
+fix str tokenization, (m "a b")
+fix (= #_ #_)
+impl preds
+impl ~ (let)
+impl more cond fns
+impl vargs
+impl io types (ports)
+impl io procs (r/w)
+impl l (load)
+impl q (quit)
