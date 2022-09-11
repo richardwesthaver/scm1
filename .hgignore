@@ -1,3 +1,6 @@
 target
+node_modules
+package-lock.json
+pkg
 w/dist
 Cargo.lock
