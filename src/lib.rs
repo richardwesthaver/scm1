@@ -47,7 +47,7 @@ impl G { pub fn n(args:Rc<A>,body:Rc<A>)->G {G{args,body}}}
   pub fn get(&self,k:&str) -> O<&A> {
     match self.env.get(k) {Some(x) => Some(x),None => match &self.out { Some(o) => o.get(k),None=>None}}}
   pub fn set(&mut self,k:&str,v:A) -> O<A> {self.env.insert(k.to_string(),v)}
-  pub fn init(&'e mut self) -> &'e mut E<'e> {
+  pub fn init(mut self) -> E<'e> {
     [('$',af!(x,Ok(A::C(format!("\"{}\"", (x.into_iter().map(|x| x.to_string()).collect::<V<S>>().join(" "))))))),
      ('t',af!(x,Ok(A::C(x.iter().map(|x| x.ty()).collect::<V<S>>().join(" "))))),
      ('!',A::F(ab!(|a,b|a!=b))),('=',A::F(ab!(|a,b|a==b))),
@@ -163,3 +163,4 @@ pub fn repl(e:&mut E) -> R<()> {
   loop { print!("  λ ");stdout().flush().or(err!("failed to display prompt"))?;
 	 let i = rl()?; if let Ok((r,_)) = parse(&tok(i)) {
 	   match eval(&r, e) {Ok(r) => println!("  {}", r),Err(e) => eprintln!("{}", e)}} else {continue}}}
+pub static HELP:&str=include_str!(concat!(env!("CARGO_MANIFEST_DIR"),"/HELP"));

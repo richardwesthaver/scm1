@@ -1,4 +1,4 @@
-SCM1 --- a no-fluff tree-walking toy scheme
+scm1 --- a no-fluff tree-walking toy scheme
 $scm1 [FILE] [-hi]
 fn             ty
   m      msg     #_     nil

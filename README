@@ -1,4 +1,4 @@
-SCM1 --- A no-fluff tree-walking scheme-ish toy interpreter
+SCM1 --- A no-fluff tree-walking toy scheme
 
   $ cargo install --path .
   $ scm1 -h
