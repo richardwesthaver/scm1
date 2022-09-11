@@ -1,4 +1,4 @@
-//! scm1_w --- scm1 wasm
+//! scm1w --- scm1 wasm
 use scm1::{E,run};use String as S;
 use wasm_bindgen::prelude::*;
 #[cfg(feature = "wee")] #[global_allocator] static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
