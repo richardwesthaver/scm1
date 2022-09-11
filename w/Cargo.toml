@@ -1,0 +1,16 @@
+[package]
+name = "scm1_web"
+version = "0.1.0"
+authors = ["ellis <ellis@rwest.io>"]
+edition = "2018"
+[features]
+default = ["panic","wee"]
+panic = ["console_error_panic_hook"]
+wee = ["wee_alloc"]
+[dependencies]
+scm1 = {path = "../"}
+wasm-bindgen = "0.2.63"
+console_error_panic_hook = { version = "0.1.6", optional = true }
+wee_alloc = { version = "0.4.5", optional = true }
+[profile.release]
+opt-level = "s"
