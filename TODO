@@ -1,8 +1,7 @@
-add public api
-add wasm lib
+impl web cli #xterm.js
+impl TCO #https://0branch.com/notes/tco-cl.html
 impl ~ (let)
 impl vargs
-impl TCO
 impl io types (ports)
 impl io procs (r/w)
 impl q (quit)

@@ -7,21 +7,20 @@ src:
     fmt:    2 spaces, terse
     use:    S:  String,
             V:  Vec,
-    	  O:  Option,
-    	  M:  HashMap,
-    	  F:  File,
-    	 FR: fmt::Result,
-    	 FF: fmt::Formatter
+    	    O:  Option,
+    	    M:  HashMap,
+    	    F:  File,
+    	   FR: fmt::Result,
+    	   FF: fmt::Formatter
     defs:  Er: error,
             R:  result,
             A:  atom {A:sym,B:bool,C:str,D:num,E:nil,F:fn,G:G,L:list}
             G:  lambda,
-            E:  env,
-	    V,S,O
+            E:  env
     macros: er, err, af, ab
     fn:     tok, parseln, parsels, parsen, parse
             seq, atom, eval, evala, ea, ee, el,
             ecar, ecdr, eg, fne, efn, em, eif,
-            ede, ld, rl, repl, main
-web/src:
-  lib.rs: 
+            ede, ld, rl, run, repl, main
+w:
+  main.rs:  wasm entry point

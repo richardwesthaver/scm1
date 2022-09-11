@@ -3,6 +3,9 @@ name = "scm1_web"
 version = "0.1.0"
 authors = ["ellis <ellis@rwest.io>"]
 edition = "2018"
+[[bin]]
+name="scm1_web"
+path="main.rs"
 [features]
 default = ["panic","wee"]
 panic = ["console_error_panic_hook"]
