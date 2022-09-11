@@ -6,4 +6,4 @@ fn main() -> R<()> {
     if i.starts_with('-') { for x in i.chars().skip(1) { match x {
       'h' => println!("{}",HELP),'i' => cc=true, y => eprintln!("invalid opt {}", y)}}} else {
       match ld(i,&mut e,false) {Ok(x)=>x,Err(_)=> println!("  {}", eval(&parse(&tok(i.to_string()))?.0,&mut e)?)}}}
-  if cc || a.is_empty() {repl(&mut e)?} Ok(())}
+  if cc || a.is_empty() {repl(&mut e)} else {Ok(())}}

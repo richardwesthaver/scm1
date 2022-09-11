@@ -1,5 +1,5 @@
 [package]
-name = "scm1_web"
+name = "scm1_w"
 version = "0.1.0"
 authors = ["ellis <ellis@rwest.io>"]
 edition = "2018"
