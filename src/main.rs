@@ -1,4 +1,4 @@
-use scm1::{R,E,parse,tok,eval,repl,ld,H};static LIB:&str="SCM1_LIB";
+use scm1::{R,E,parse,tok,eval,repl,ld,H,LIB};
 fn main() -> R<()> {
   let mut e=E::n(None).init();let mut cc = false;
   if let Ok(x) = std::env::var(LIB) {ld(x,&mut e,cc)?};

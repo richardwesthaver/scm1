@@ -146,6 +146,7 @@ fn ede(i:&[A],e:&mut E) -> R<A> { //:
   let d1 = i.get(1).ok_or(er!("expected second form"))?;if i.len()>2 {return err!("def can only have two forms")}
   let dx = eval(d1,e)?;e.set(&ds,dx);Ok(d0.clone())}
 
+pub const LIB:&str="SCM1_LIB";pub const HOME:&str="SCM1_HOME";pub const PROMPT:&str="SCM1_PROMPT";
 pub const P: &str = "λ ";pub const H:&str=include_str!(concat!(env!("CARGO_MANIFEST_DIR"),"/HELP"));
 pub fn ld<P:AsRef<Path>>(p:P,e:&mut E,i:bool)-> R<()> { //load file
   let p = p.as_ref(); if p.is_dir() {for x in p {ld(x,e,i)?}}
@@ -159,7 +160,7 @@ pub fn ld<P:AsRef<Path>>(p:P,e:&mut E,i:bool)-> R<()> { //load file
     Err(e) => e.to_string()}}
 #[inline(always)] fn rl()->R<S> {
   let mut s = S::new(); stdin().read_line(&mut s).map_err(|e| er!(&e.to_string()))?;Ok(s)}
-pub fn rlw() -> S {format!("{} {}", env!("CARGO_PKG_NAME"),env!("CARGO_PKG_VERSION"))}
+fn rlw() -> S {format!("{} {}", env!("CARGO_PKG_NAME"),env!("CARGO_PKG_VERSION"))}
 pub fn repl(e:&mut E) -> R<()> {
   println!("{}",rlw());
   loop { print!("  {}",P);stdout().flush().or(err!("failed to display prompt"))?;
