@@ -1,7 +1,10 @@
 SCM1 --- A no-fluff tree-walking toy scheme
 
+web: https://richardwesthaver.github.io
+
+local:
+  $ git clone https://github.com/richardwesthaver/scm1 && cd scm1
   $ cargo install --path .
-  $ scm1 -h
   $ scm1 src/test.scm src/std.scm -i
     ...
   $ scm1 0.1.0
